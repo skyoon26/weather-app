@@ -1,12 +1,14 @@
 const apiKey = "a06eb411cd4d077e18b8d53093f0df05";
-const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+const apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=";
+let unit = "metric";
 
 const searchBox = document.querySelector(".search input");
 const searchBtn = document.querySelector(".search button");
 const weatherIcon = document.querySelector(".weather-icon");
+const unitToggle = document.getElementById("unitToggle");
 
 async function checkWeather(city){
-  const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
+  const response = await fetch(apiUrl + city + `&units=${unit}&appid=${apiKey}`);
 
   if (response.status == 404) {
     document.querySelector(".error").style.display = "block";
@@ -15,9 +17,9 @@ async function checkWeather(city){
     let data = await response.json();
 
     document.querySelector(".city").innerHTML = data.name;
-    document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+    document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + (unit === "metric" ? "°C" : "°F");
     document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
-    document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+    document.querySelector(".wind").innerHTML = data.wind.speed + (unit === "metric" ? " km/h" : " mph");
 
     if (data.weather[0].main == "Clouds") {
       weatherIcon.src = "images/clouds.png";
@@ -42,6 +44,13 @@ searchBtn.addEventListener("click", () => {
 
 searchBox.addEventListener("keypress", (event) => {
   if (event.key === "Enter") {
+    checkWeather(searchBox.value);
+  }
+});
+
+unitToggle.addEventListener("change", () => {
+  unit = unitToggle.checked ? "imperial" : "metric";
+  if (searchBox.value) {
     checkWeather(searchBox.value);
   }
 });
